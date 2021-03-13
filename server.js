@@ -517,7 +517,18 @@ app.post('/product', passport.authenticate('jwt', {session: false}), (req, res) 
   });
 });
 
-  
+// GET A Profiles products
+app.get('/product/handle', passport.authenticate('jwt', {session:false}), (req, res) => {
+  let productProfile = req.params.handle;
+  Products.find({}).then(products =>{
+    if(products){
+      productsforProfile = products.filter(pro =>{
+        pro.productProfile === productProfile;
+      });
+      res.json(productsforProfile);
+    }
+  }).catch(err => res.status(404).json({noproductfound: 'No Products found for this Profile'}))
+})
 // 4- we create a port const for our server. for deployment, it will use the env port, but for our dev, we use port 5000
 //const port = process.env.port;
 
