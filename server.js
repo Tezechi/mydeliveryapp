@@ -518,11 +518,11 @@ app.post('/product', passport.authenticate('jwt', {session: false}), (req, res) 
 });
 
 // GET A Profiles products
-app.get('/product/handle', passport.authenticate('jwt', {session:false}), (req, res) => {
+app.get('/product/:handle', passport.authenticate('jwt', {session:false}), (req, res) => {
   let productProfile = req.params.handle;
-  Products.find().then(products =>{
+  Products.find({}).then(products =>{
     if(products){
-      productsforProfile = products.filter(pro =>{
+    let  productsforProfile = products.filter(pro =>{
         pro.productProfile === productProfile;
         console.log(productsforProfile);
         res.json(productsforProfile);
