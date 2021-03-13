@@ -518,16 +518,10 @@ app.post('/product', passport.authenticate('jwt', {session: false}), (req, res) 
 });
 
 // GET A Profiles products
-app.get('/product/:handle', passport.authenticate('jwt', {session:false}), (req, res) => {
-  let productProfile = req.params.handle;
+app.get('/product', passport.authenticate('jwt', {session:false}), (req, res) => {
   Products.find({}).then(products =>{
     if(products){
-    let  productsforProfile = products.filter(pro =>{
-        pro.productProfile === productProfile;
-        console.log(productsforProfile);
-        res.json(productsforProfile);
-      });
-     
+  res.json(products)  
     }
   }).catch(err => res.status(404).json({noproductfound: 'No Products found for this Profile'}))
 })
