@@ -1,4 +1,5 @@
 //====LIST DEPENDENCIES===//
+require("dotenv").config();
 const express = require('express');
 const parseurl = require('parseurl');
 const bodyParser = require('body-parser');
@@ -28,6 +29,7 @@ const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const methodOverride = require('method-override');
 var fs = require('fs');
+const AWS = require('aws-sdk');
 // const fileUpload = require('express-fileupload');
 // const dbobj = require('./dbobj');
 // const IsEmpty = require('./validation/is-empty');
@@ -524,6 +526,64 @@ app.get('/product', passport.authenticate('jwt', {session:false}), (req, res) =>
   res.json(products)  
     }
   }).catch(err => res.status(404).json({noproductfound: 'No Products found for this Profile'}))
+})
+
+
+//POST PRODUCT PICTURE
+app.put('/productpicture:id', passport.authenticate('jwt', {session:false}), (req, res) =>{
+  Products.findById(req.params.id)
+  .then(product =>{
+    if(!product){
+      return res.status(404).json({message: 'Product not found'})
+    }
+    if(product.productProfile !== req.body.productProfile){
+      return res.status(401).json({message:'This is not your Product, you cannt add photo'})
+    }
+    if(!req.files){
+      res.status(400).json({
+        errors: [
+          {
+            message:'Please upload a Product Picture'
+          }
+        ]
+      });
+    }
+    const file = req.files.file;
+    if(mimetype !== 'img/jpeg' && mimetype !== 'image/png'){
+      return res.status(400).json({
+        errors:[
+          {
+            message:'Wrong Image type selected'
+          }
+        ]
+      });
+  }
+  file.name = `photo_${product._id}${path.parse(file.name).ext}`;
+
+  var Blob = req.files.file.data;
+  const S3_BUCkET =  process.env.S3_BUCKET_NAME;
+  const AWS_ACCES_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+  const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY
+  AWS.config.update({
+    accessKeyId: AWS_ACCES_KEY_ID,
+    secretAccessKey:AWS_SECRET_ACCESS_KEY
+  })
+  const s3 = new AWS.S3();
+
+  var params = {
+    Bucket: S3_BUCkET,
+    Key: file.name,
+    Body: Blob
+  }
+  s3.upload(params, ()=>{
+    console.log(err, data);
+  });
+  let newPhoto = Products.findByIdAndUpdate(req.params.id, {productImage:file.name}, {new:true}
+    );
+    res.json(newPhoto);
+  }).catch(err =>{
+    console.log(err);
+  })
 })
 // 4- we create a port const for our server. for deployment, it will use the env port, but for our dev, we use port 5000
 //const port = process.env.port;
