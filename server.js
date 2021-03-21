@@ -507,7 +507,7 @@ app.post('/product', passport.authenticate('jwt', {session: false}), (req, res) 
         productPrice : req.body.productPrice,
         productCategory : req.body.productCategory,
         productDescription : req.body.productDescription,
-        productImage : req.body.productImage,
+        productImage : 'https://mydeliverystore.s3.us-east-2.amazonaws.com/blankimg.jpg',
         productProfile: req.body.productProfile
       });
       newProduct.save()
