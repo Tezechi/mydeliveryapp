@@ -388,7 +388,7 @@ app.post('/profile', passport.authenticate('jwt', {session: false}), (req, res) 
       // Before we create a new profile, we check to see if the handle exists already
       Profile.findOne({handle: profileFields.handle}).then(profile => {
         if (profile) {
-          errors.handle = 'That handle already exists';
+          errors.handle = 'That handle already exists!!';
           res.status(400).json(erros);
         } else {
           // We save the new Profile
