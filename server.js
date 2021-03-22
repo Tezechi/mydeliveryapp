@@ -531,7 +531,8 @@ app.get('/product', passport.authenticate('jwt', {session:false}), (req, res) =>
 
 //POST PRODUCT PICTURE
 app.post('/productpicture:id', passport.authenticate('jwt', {session:false}), (req, res) =>{
-  Products.findById(req.params.id)
+  let id = req.params.id;
+  Products.findOne(id)
   .then(product =>{
     if(!product){
       return res.status(404).json({message: 'Product not found'})
@@ -578,7 +579,7 @@ app.post('/productpicture:id', passport.authenticate('jwt', {session:false}), (r
   s3.upload(params, ()=>{
     console.log(err, data);
   });
-  let newPhoto = Products.findByIdAndUpdate(req.params.id, {productImage:file.name}, {new:true}
+  let newPhoto = Products.findOneAndUpdate(id, {productImage:file.name}, {new:true}
     );
     res.json(newPhoto);
   }).catch(err =>{
