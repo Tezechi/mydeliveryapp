@@ -530,13 +530,13 @@ app.get('/product', passport.authenticate('jwt', {session:false}), (req, res) =>
 
 
 //POST PRODUCT PICTURE
-app.put('/productpicture:id', passport.authenticate('jwt', {session:false}), (req, res) =>{
-  Products.findOne({productName:req.params.id})
+app.post('/productpicture:id', passport.authenticate('jwt', {session:false}), (req, res) =>{
+  Products.findById(req.params.id)
   .then(product =>{
     if(!product){
       return res.status(404).json({message: 'Product not found'})
     }
-    if(product.productProfile !== req.body.productProfile){
+    if(product.productProfile !== req.body.producProfile){
       return res.status(401).json({message:'This is not your Product, you cannt add photo'})
     }
     if(!req.files){
