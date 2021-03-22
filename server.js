@@ -509,7 +509,7 @@ app.post('/product', passport.authenticate('jwt', {session: false}), (req, res) 
         productPrice : req.body.productPrice,
         productCategory : req.body.productCategory,
         productDescription : req.body.productDescription,
-        productImage : 'https://mydeliverystore.s3.us-east-2.amazonaws.com/blankimg.jpg',
+        productImage : `https://mydeliverystore.s3.us-east-2.amazonaws.com/blankimg.jpg`,
         productProfile: req.body.productProfile
       });
       newProduct.save()
@@ -531,7 +531,7 @@ app.get('/product', passport.authenticate('jwt', {session:false}), (req, res) =>
 
 //POST PRODUCT PICTURE
 app.put('/productpicture:id', passport.authenticate('jwt', {session:false}), (req, res) =>{
-  Products.findById(req.params.id)
+  Products.findOne({productName:req.params.id})
   .then(product =>{
     if(!product){
       return res.status(404).json({message: 'Product not found'})
