@@ -28,7 +28,7 @@ const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const methodOverride = require('method-override');
 const AWS = require('aws-sdk');
-const BusBoy = require('busboy');
+// const BusBoy = require('busboy');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -583,6 +583,7 @@ app.post('/productpicture:productName', passport.authenticate('jwt', {session:fa
        Products.findOneAndUpdate({productName:req.body.productName}, {productImage:file.name}, {new:true}
         )
         .then(newPhoto =>{
+          let photo;
          res.json({photo: newPhoto.productImage})
          console.log(photo);
         })
