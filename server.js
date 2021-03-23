@@ -540,18 +540,18 @@ app.post('/productpicture:productName', passport.authenticate('jwt', {session:fa
     if(!product){
       return res.status(404).json({message: 'Product not found'})
     }
-    if(product.productProfile !== req.body.producProfile){
-      return res.status(401).json({message:'This is not your Product, you cannt add photo'})
-    }
-    if(!req.files){
-      res.status(400).json({
-        errors: [
-          {
-            message:'Please upload a Product Picture'
-          }
-        ]
-      });
-    }
+    // if(product.productProfile !== req.body.producProfile){
+    //   return res.status(401).json({message:'This is not your Product, you cannt add photo'})
+    // }
+    // if(!req.files){
+    //   res.status(400).json({
+    //     errors: [
+    //       {
+    //         message:'Please upload a Product Picture'
+    //       }
+    //     ]
+    //   });
+    // }
     const file = req.files.file;
     if(mimetype !== 'img/jpeg' && mimetype !== 'image/png'){
       return res.status(400).json({
