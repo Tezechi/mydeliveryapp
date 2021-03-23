@@ -537,9 +537,11 @@ app.get('/product', passport.authenticate('jwt', {session:false}), (req, res) =>
 
 // Multer ships with storage engines DiskStorage and MemoryStorage
 // And Multer adds a body object and a file or files object to the request object. The body object contains the values of the text fields of the form, the file or files object contains the files uploaded via the form.
-var storage = multer.memoryStorage();
-var upload = multer({ storage: storage });
-app.post('/productpicture:productName', passport.authenticate('jwt', {session:false}), upload.single("file"), (req, res) =>{
+var storage = multer.memoryStorage({destination : function(req, file, callback){
+  callback(null, '')
+}});
+var upload = multer({ storage: storage }).single('file');
+app.post('/productpicture:productName', passport.authenticate('jwt', {session:false}), upload, (req, res) =>{
   const file = req.file;
   const s3FileURL = process.env.AWS_Uploaded_File_URL_LINK;
 
