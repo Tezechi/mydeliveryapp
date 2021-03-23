@@ -533,61 +533,119 @@ app.get('/product', passport.authenticate('jwt', {session:false}), (req, res) =>
 
 
 //POST PRODUCT PICTURE
-app.post('/productpicture:productName', passport.authenticate('jwt', {session:false}), (req, res) =>{
-  
-  Products.findOne({productName:req.params.productName})
-  .then(product =>{
-    if(!product){
-      return res.status(404).json({message: 'Product not found'})
-    }
-    // if(product.productProfile !== req.body.producProfile){
-    //   return res.status(401).json({message:'This is not your Product, you cannt add photo'})
-    // }
-    // if(!req.files){
-    //   res.status(400).json({
-    //     errors: [
-    //       {
-    //         message:'Please upload a Product Picture'
-    //       }
-    //     ]
-    //   });
-    // }
-    const file = req.files.file;
-    if(mimetype !== 'img/jpeg' && mimetype !== 'image/png'){
-      return res.status(400).json({
-        errors:[
-          {
-            message:'Wrong Image type selected'
-          }
-        ]
-      });
-  }
-  file.name = `photo_${req.params.productName}${path.parse(file.name).ext}`;
 
-  var Blob = req.files.file.data;
-  const S3_BUCkET =  'mydeliverystore';
-  const AWS_ACCES_KEY_ID = 'AKIA25WYPBJBENKX7RQS';
-  const AWS_SECRET_ACCESS_KEY = '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'
-  AWS.config.update({
-    accessKeyId: AWS_ACCES_KEY_ID,
-    secretAccessKey:AWS_SECRET_ACCESS_KEY
-  })
-  const s3 = new AWS.S3();
+
+// Multer ships with storage engines DiskStorage and MemoryStorage
+// And Multer adds a body object and a file or files object to the request object. The body object contains the values of the text fields of the form, the file or files object contains the files uploaded via the form.
+var storage = multer.memoryStorage();
+var upload = multer({ storage: storage });
+app.post('/productpicture:productName', passport.authenticate('jwt', {session:false}), upload.single("file"), (req, res) =>{
+  const file = req.file;
+  const s3FileURL = process.env.AWS_Uploaded_File_URL_LINK;
+
+  let s3bucket = new AWS.S3({
+    accessKeyId:'AKIA25WYPBJBENKX7RQS',
+    secretAccessKey: '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',
+    region: 'us-east-2'
+  });
+
 
   var params = {
-    Bucket: S3_BUCkET,
-    Key: file.name,
-    Body: Blob
-  }
-  s3.upload(params, ()=>{
-    console.log(err, data);
+    Bucket: 'mydeliverystore',
+    Key: file.originalname,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: "public-read"
+  };
+
+
+
+
+  s3bucket.upload(params, function(err, data) {
+    if (err) {
+      res.status(500).json({ error: true, Message: err });
+    } else {
+      res.send({ data });
+
+
+      // var newFileUploaded = {
+      //   description: req.body.description,
+      //   fileLink: s3FileURL + file.originalname,
+      //   s3_key: params.Key
+      // };
+      // var document = new DOCUMENT(newFileUploaded);
+      // document.save(function(error, newFile) {
+      //   if (error) {
+      //     throw error;
+      //   }
+      // });
+
+       Products.findOneAndUpdate({productName:req.body.productName}, {productImage:file.name}, {new:true}
+        )
+        .then(newPhoto =>{
+         res.json({photo: newPhoto.productImage})
+         console.log(photo);
+        })
+        .catch(err =>{
+          res.json(err);
+        })
+        ;
+
+        
+    }
   });
-  let newPhoto = Products.findOneAndUpdate({productName:req.body.productName}, {productImage:file.name}, {new:true}
-    );
-    res.json(newPhoto);
-  }).catch(err =>{
-    console.log(err);
-  })
+  // Products.findOne({productName:req.params.productName})
+  // .then(product =>{
+  //   if(!product){
+  //     return res.status(404).json({message: 'Product not found'})
+  //   }
+  //   // if(product.productProfile !== req.body.producProfile){
+  //   //   return res.status(401).json({message:'This is not your Product, you cannt add photo'})
+  //   // }
+  //   // if(!req.files){
+  //   //   res.status(400).json({
+  //   //     errors: [
+  //   //       {
+  //   //         message:'Please upload a Product Picture'
+  //   //       }
+  //   //     ]
+  //   //   });
+  //   // }
+  //   const file = req.files.file;
+  //   if(mimetype !== 'img/jpeg' && mimetype !== 'image/png'){
+  //     return res.status(400).json({
+  //       errors:[
+  //         {
+  //           message:'Wrong Image type selected'
+  //         }
+  //       ]
+  //     });
+  // }
+  // file.name = `photo_${req.params.productName}${path.parse(file.name).ext}`;
+
+  // var Blob = req.files.file.data;
+  // const S3_BUCkET =  'mydeliverystore';
+  // const AWS_ACCES_KEY_ID = 'AKIA25WYPBJBENKX7RQS';
+  // const AWS_SECRET_ACCESS_KEY = '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'
+  // AWS.config.update({
+  //   accessKeyId: AWS_ACCES_KEY_ID,
+  //   secretAccessKey:AWS_SECRET_ACCESS_KEY
+  // })
+  // const s3 = new AWS.S3();
+
+  // var params = {
+  //   Bucket: S3_BUCkET,
+  //   Key: file.name,
+  //   Body: Blob
+  // }
+  // s3.upload(params, ()=>{
+  //   console.log(err, data);
+  // });
+ 
+  //   res.json(newPhoto);
+  // }).catch(err =>{
+  //   console.log(err);
+  // })
 })
 // 4- we create a port const for our server. for deployment, it will use the env port, but for our dev, we use port 5000
 //const port = process.env.port;
