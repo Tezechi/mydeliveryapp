@@ -582,7 +582,7 @@ app.post('/productpicture:productName', passport.authenticate('jwt', {session:fa
       //   }
       // });
 
-       Products.findOneAndUpdate({productName:req.body.productName}, {productImage:file.name}, {new:true}
+       Products.findOneAndUpdate({productName:req.params.productName}, {productImage:file.name}, {new:true}
         )
         .then(newPhoto =>{
           let photo;
