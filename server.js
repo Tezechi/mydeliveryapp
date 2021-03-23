@@ -582,17 +582,17 @@ app.post('/productpicture:productName', passport.authenticate('jwt', {session:fa
       //   }
       // });
 
-       Products.findOneAndUpdate({productName:req.params.productName}, {productImage:file.name}, {new:true}
-        )
-        .then(newPhoto =>{
-          let photo;
-         res.json({photo: newPhoto.productImage})
-         console.log(photo);
-        })
-        .catch(err =>{
-          res.json(err);
-        })
-        ;
+      //  Products.findOneAndUpdate({productName:req.params.productName}, {productImage:file.name}, {new:true}
+      //   )
+      //   .then(newPhoto =>{
+      //     let photo;
+      //    res.json({photo: newPhoto.productImage})
+      //    console.log(photo);
+      //   })
+      //   .catch(err =>{
+      //     res.json(err);
+      //   })
+      //   ;
 
         
     }
