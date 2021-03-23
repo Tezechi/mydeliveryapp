@@ -654,4 +654,5 @@ app.post('/productpicture:productName', passport.authenticate('jwt', {session:fa
 //const port = process.env.port;
 
 // 5- We tell our server about the port we created for it using the listen method, which accepts 2 args the port and a call back fxtn for us to pass a message
-app.listen(process.env.PORT, '0.0.0.0') // save and type node server to run our server.
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server Listenng on port ${PORT}`)); // save and type node server to run our server.
