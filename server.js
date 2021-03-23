@@ -3,7 +3,6 @@
 const express = require('express');
 const parseurl = require('parseurl');
 const bodyParser = require('body-parser');
-const path = require('path');
 const expressValidator = require('express-validator');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -28,8 +27,12 @@ const multer = require('multer');
 const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const methodOverride = require('method-override');
-var fs = require('fs');
 const AWS = require('aws-sdk');
+const BusBoy = require('busboy');
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
+
 // const fileUpload = require('express-fileupload');
 // const dbobj = require('./dbobj');
 // const IsEmpty = require('./validation/is-empty');
@@ -531,7 +534,7 @@ app.get('/product', passport.authenticate('jwt', {session:false}), (req, res) =>
 
 //POST PRODUCT PICTURE
 app.post('/productpicture:productName', passport.authenticate('jwt', {session:false}), (req, res) =>{
-  // let productName = req.params.productName;
+  
   Products.findOne({productName:req.params.productName})
   .then(product =>{
     if(!product){
@@ -559,12 +562,12 @@ app.post('/productpicture:productName', passport.authenticate('jwt', {session:fa
         ]
       });
   }
-  file.name = `photo_${product._id}${path.parse(file.name).ext}`;
+  file.name = `photo_${req.params.productName}${path.parse(file.name).ext}`;
 
   var Blob = req.files.file.data;
-  const S3_BUCkET =  process.env.S3_BUCKET_NAME;
-  const AWS_ACCES_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
-  const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY
+  const S3_BUCkET =  'mydeliverystore';
+  const AWS_ACCES_KEY_ID = 'AKIA25WYPBJBENKX7RQS';
+  const AWS_SECRET_ACCESS_KEY = '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'
   AWS.config.update({
     accessKeyId: AWS_ACCES_KEY_ID,
     secretAccessKey:AWS_SECRET_ACCESS_KEY
